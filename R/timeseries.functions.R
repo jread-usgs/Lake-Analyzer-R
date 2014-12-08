@@ -1,5 +1,78 @@
-#Timeseries functions for r Lake Analyzer
-
+#'@name ts.meta.depths
+#'@aliases 
+#'ts.meta.depths
+#'ts.thermo.depth
+#'ts.schmidt.stability
+#'ts.lake.number
+#'ts.uStar
+#'ts.wedderburn.number
+#'ts.layer.temperature
+#'@title Calculate physical indices for a timeseries.
+#'@description 
+#'Functions for simplifying the calculation of physical indices for a timeseries of 
+#'observation data. Can usually be called directly on data loaded directly using 
+#'\code{\link{load.ts}} and \code{\link{load.bathy}}.
+#'@usage
+#'ts.meta.depths(wtr, slope = 0.1, seasonal=TRUE, na.rm=FALSE)
+#'
+#'ts.thermo.depth(wtr, Smin = 0.1, seasonal=TRUE, na.rm=FALSE, ...)
+#'
+#'ts.schmidt.stability(wtr, bathy, na.rm=FALSE)
+#'
+#'ts.lake.number(wtr, wnd, wnd.height, bathy, seasonal=TRUE)
+#'
+#'ts.uStar(wtr, wnd, wnd.height, bathy, seasonal=TRUE)
+#'
+#'ts.wedderburn.number(wtr, wnd, wnd.height, bathy, Ao, seasonal=TRUE)
+#'
+#'ts.layer.temperature(wtr, top, bottom, bathy, na.rm=FALSE)
+#'
+#'@param wtr A data frame of water temperatures (in Celsius). Loaded using 
+#'\code{\link{load.ts}}. Must have columns datetime, wtr_##.# where ##.# is depth in meters.
+#'@param slope The minimum density gradient (kg/m^3/m) that can be called the thermocline
+#'@param Smin The minimum density gradient cutoff (kg/m^3/m) defining the metalimion
+#'@param bathy A data frame containing hypsometric data. Loaded using \code{\link{load.bathy}}
+#'@param wnd A data frame of wind speeds (in m/s). Loaded using \code{\link{load.ts}}
+#'@param wnd.height Height of the anemometer above the lake surface in meters
+#'@param Ao Numeric value for the water body surface area (m^2) at zero meters depth
+#'@param seasonal Boolean indicating if seasonal thermocline should be used in calculation.
+#'@param bottom Either a single numeric depth value to be used across the entire timeseries, 
+#'or a vector of same length as the timeseries (e.g., nrow(wtr)). This is useful when calculating 
+#'a time-varying layer average, like average epilimnion temperature.
+#'@param na.rm Boolean indicated if step-by-step removal of NA's should be tried. If false, a 
+#'timestep with any NA values will return an NA value. If true, best effort will be made to 
+#'calculate indices despite NA values.
+#'@param ... Additional parameters passed to underlying base function 
+#'(e.g., index=TRUE for thermo.depth)
+#'@details 
+#'These are wrapper functions that accept a timeseries of data and call the core physical 
+#'metric functions (like \code{\link{schmidt.stability}}) on each timestep.
+#'@return
+#'Returns a data frame with the timeseries of calculated derivatives. All include a ‘datetime’ 
+#'column, but derivative columns differ between functions.
+#'@author Luke Winslow
+#'@seealso For loading input data: \code{\link{load.ts}}, \code{\link{load.bathy}}
+#'
+#'For the underlying functions operating at each timestep: \code{\link{meta.depths}}, 
+#'\code{\link{thermo.depth}}, \code{\link{schmidt.stability}}, \code{\link{lake.number}}.
+#'@examples
+#'#Get the path for the package example file included
+#'exampleFilePath <- system.file('extdata', 'Sparkling.daily.wtr', package="rLakeAnalyzer")
+#'
+#'#Load
+#'sparkling.temp = load.ts(exampleFilePath)
+#'
+#'#calculate and plot the metalimnion depths
+#'m.d = ts.meta.depths(sparkling.temp)
+#'
+#'plot(m.d$datetime, m.d$top, type='l', ylab='Meta Depths (m)', xlab='Date', col='blue')
+#'lines(m.d$datetime, m.d$bottom, col='red')
+#'
+#'#calculate and plot the thermocline depth
+#'t.d = ts.thermo.depth(sparkling.temp)
+#'
+#'plot(t.d$datetime, t.d$thermo.depth, type='l', ylab='Thermocline Depth (m)', xlab='Date')
+#'@export
 ts.meta.depths <- function(wtr, slope=0.1, seasonal=TRUE, na.rm=FALSE){
   
   depths = get.offsets(wtr)
@@ -23,7 +96,7 @@ ts.meta.depths <- function(wtr, slope=0.1, seasonal=TRUE, na.rm=FALSE){
   return(data.frame(datetime=wtr$datetime, top=m.d[,1], bottom=m.d[,2]))
 
 }
-
+#'@export
 ts.thermo.depth <- function(wtr, Smin = 0.1, seasonal=TRUE, na.rm=FALSE, ...){
   
   depths = get.offsets(wtr)
@@ -53,7 +126,7 @@ ts.thermo.depth <- function(wtr, Smin = 0.1, seasonal=TRUE, na.rm=FALSE, ...){
   
   return(output)
 }
-
+#'@export
 ts.schmidt.stability <- function(wtr, bathy, na.rm=FALSE){
 	
 	depths = get.offsets(wtr)
@@ -87,7 +160,7 @@ ts.schmidt.stability <- function(wtr, bathy, na.rm=FALSE){
 	return(output)
 	
 }
-
+#'@export
 ts.lake.number <- function(wtr, wnd, wnd.height, bathy, seasonal=TRUE){
 	
 	depths = get.offsets(wtr)
@@ -133,7 +206,7 @@ ts.lake.number <- function(wtr, wnd, wnd.height, bathy, seasonal=TRUE){
 	return(output)
 }
 
-
+#'@export
 ts.uStar <- function(wtr, wnd, wnd.height, bathy, seasonal=TRUE){
 	
 	depths = get.offsets(wtr)
@@ -173,7 +246,7 @@ ts.uStar <- function(wtr, wnd, wnd.height, bathy, seasonal=TRUE){
 	return(output)
 }
 
-
+#'@export
 ts.wedderburn.number <- function(wtr, wnd, wnd.height, bathy, Ao, seasonal=TRUE){
   
   depths = get.offsets(wtr)
@@ -223,7 +296,7 @@ ts.wedderburn.number <- function(wtr, wnd, wnd.height, bathy, Ao, seasonal=TRUE)
   return(output)
 }
 
-
+#'@export
 ts.layer.temperature <- function(wtr, top, bottom, bathy, na.rm=FALSE){
   
   depths = get.offsets(wtr)

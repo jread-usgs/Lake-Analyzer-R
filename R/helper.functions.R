@@ -1,5 +1,26 @@
 ## Helper functions for Lake Analyzer R
-
+#'@title Gets depths from data frame containing profile info.
+#'@description Extracts the depth information from a data frame 
+#'containing multi-depth observation data. Relies on the format 
+#'of the header to get information and may fail if your file 
+#'format is incorrect.
+#'@param data Data frame returned from \link{load.ts}.
+#'@return A numeric vector of depth values. Should be the ncol(data) - 
+#'1 in length as the first column contains date/time data.
+#'@author Luke Winslow
+#'@seealso \link{load.ts}
+#'@examples
+#'#Get the path for the package example file included
+#'exampleFilePath <- system.file('extdata', 'Sparkling.wtr', package="rLakeAnalyzer")
+#'
+#'#Load
+#'sparkling.temp = load.ts(exampleFilePath)
+#'
+#'#get the lake depths associated with each column
+#'depths = get.offsets(sparkling.temp)
+#'
+#'print(depths)
+#'@export
 get.offsets <- function(data){
   
   header = names(data)
@@ -22,7 +43,7 @@ get.offsets <- function(data){
   return(offsets)
 }
 
-
+# -- private function --
 get.drho_dz <- function(wtr, depths){
 	numDepths = length(wtr)
 	

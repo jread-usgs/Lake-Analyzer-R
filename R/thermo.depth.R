@@ -1,10 +1,32 @@
-#
-# FindThermoDepth finds the thermocline depth from a temperature profile.
-#
-#
-# Author: Luke Winslow <lawinslow@gmail.com>
-# Adapted from FindThermoDepth.m in https://github.com/jread-usgs/Lake-Analyzer/
-#
+#'@title Calculate depth of the thermocline from a temperature profile.
+#'@description This function calculates the location of the thermocline 
+#'from a temperature profile. It uses a special technique to estimate where 
+#'the thermocline lies even between two temperature measurement depths, 
+#'giving a potentially finer-scale estimate than usual techniques.
+#'@param wtr Numeric vector of water temperature in degrees Celsius
+#'@param depths Numeric vector of depths. Must be the same length as the wtr parameter
+#'@param Smin Parameter defining minimum density gradient for thermocline
+#'@param seasonal a logical value indicating whether the seasonal thermocline should be 
+#'returned. The seasonal thermocline is defined as the deepest density gradient found 
+#'in the profile. If FALSE, the depth of the maximum density gradient is returned.
+#'@param index Boolean value indicated if index of the thermocline depth, instead of 
+#'the depth value, should be returned.
+#'@return Depth of thermocline. If no thermocline found, value is max(depths).
+#'@author Luke Winslow
+#'@seealso \code{\link{ts.thermo.depth}}, \code{\link{water.density}}
+#'@examples
+#'# A vector of water temperatures
+#'wtr = c(22.51, 22.42, 22.4, 22.4, 22.4, 22.36, 22.3, 22.21, 22.11, 21.23, 16.42, 
+#'        15.15, 14.24, 13.35, 10.94, 10.43, 10.36, 9.94, 9.45, 9.1, 8.91, 8.58, 8.43)
+#'
+#'#A vector defining the depths
+#'depths = c(0, 0.5, 1, 1.5, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
+#'           17, 18, 19, 20)
+#'
+#'t.d = thermo.depth(wtr, depths, seasonal=FALSE)
+#'
+#'cat('The thermocline depth is:', t.d)
+#'@export
 thermo.depth <- function(wtr, depths, Smin = 0.1, seasonal=TRUE, index=FALSE){
   
   if(any(is.na(wtr))){

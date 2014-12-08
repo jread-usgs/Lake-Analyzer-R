@@ -1,7 +1,13 @@
-# time series of lake number
-lake.number.plot = function(wtr,wnd,wh,bth){
+#'@title Plots time series of Lake Number
+#'@description Generates a time series plot of Lake Number for appropriately 
+#'formatted data. See \code{\link{lake.number}} for more details on Lake Number and reference.
+#'@param wtr Data frame of water temperature loaded with \code{\link{load.ts}}
+#'@param wnd 
+#'@param wnd.height
+#'@param bth 
+lake.number.plot = function(wtr,wnd,wnd.height,bth){
   
-  ln = ts.lake.number(wtr,wnd,wh,bth)
+  ln = ts.lake.number(wtr,wnd,wnd.height,bth)
   
   starttime = min(ln[,1]) #earliest date
   endtime = max(ln[,1]) #latest date
